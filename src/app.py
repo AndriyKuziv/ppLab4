@@ -24,5 +24,5 @@ import src.route.playlists
 def create_tables():
     db.create_all()
 
-
-app.run()
+if __name__ == "__app__":
+    app.run()
