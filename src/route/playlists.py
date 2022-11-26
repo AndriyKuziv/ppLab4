@@ -1,4 +1,4 @@
-from src.app import app
+from src.app import app, auth
 from src.model.user import User
 from src.model.playlist import State, Playlist
 from flask_restful import reqparse
@@ -7,6 +7,7 @@ from src.error_handler.exception_wrapper import handle_server_exception
 
 
 @app.route('/playlist/<userId>', methods=['POST'])
+@auth.login_required(role=['user', 'admin'])
 @handle_server_exception
 def create_playlist(userId: int):
     parser = reqparse.RequestParser()
@@ -39,12 +40,14 @@ def create_playlist(userId: int):
 
 
 @app.route('/playlist/<playlistId>', methods=['DELETE'])
+@auth.login_required(role=['user', 'admin'])
 @handle_server_exception
-def delete_account_by_id(playlistId: int):
+def delete_playlist_by_id(playlistId: int):
     return Playlist.delete_by_id(playlistId)
 
 
 @app.route('/playlist/<playlistId>', methods=['GET'])
+@auth.login_required(role=['user', 'admin'])
 @handle_server_exception
 def get_playlist_by_id(playlistId: int):
     playlist = Playlist.get_by_id(playlistId)
@@ -58,6 +61,7 @@ def get_playlist_by_id(playlistId: int):
 
 @app.route('/playlist/<playlistId>', methods=['PUT'])
 @handle_server_exception
+@auth.login_required(role=['user', 'admin'])
 def update_playlist_by_id(playlistId: int):
     parser = reqparse.RequestParser()
 
