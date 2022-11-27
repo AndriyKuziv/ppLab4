@@ -18,7 +18,7 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'password': self.password,
-            'roles' : [role.name for role in self.roles]
+            'roles': [role.name for role in self.roles]
         }
 
     def save_to_db(self):
