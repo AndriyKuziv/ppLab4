@@ -52,7 +52,7 @@ class TestUsers(TestCase):
         self.assertEqual(self.get_playlist_json, result)
 
     @mock.patch('src.model.playlist.Playlist.get_by_id')
-    def test_get_user_by_id_fail(self, mock_get_playlist_by_id):
+    def test_get_playlist_by_id_fail(self, mock_get_playlist_by_id):
         mock_get_playlist_by_id.return_value = None
 
         undecorated_get_playlist_by_id = undecorated(get_playlist_by_id)

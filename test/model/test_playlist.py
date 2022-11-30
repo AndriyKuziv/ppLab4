@@ -68,7 +68,7 @@ class TestPlaylist(TestCase):
         self.assertTrue(result)
 
     @mock.patch('src.model.playlist.Playlist.get_by_id')
-    def test_delete_by_identifier_with_invalid_user(self, mock_get_by_id):
+    def test_delete_by_identifier_with_invalid_id(self, mock_get_by_id):
         mock_get_by_id.return_value = None
 
         result = Playlist.delete_by_id('id')
