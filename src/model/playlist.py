@@ -13,14 +13,14 @@ class State(StrEnum):
 class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True, nullable=False)
-    userId = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+    userName = db.Column(db.String(255), db.ForeignKey('user.username', ondelete='CASCADE'))
     state = db.Column(Enum(State), nullable=False)
 
     def to_json(self):
         return {
             'id': self.id,
             'name': self.name,
-            'user_id': self.userId,
+            'user_name': self.userName,
             'state': self.state
         }
 

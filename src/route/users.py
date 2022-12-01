@@ -52,6 +52,7 @@ def get_user_by_id(userId: int):
                                    'Field \'userId\' in path parameters.'), 404
     return User.to_json(user)
 
+
 @app.route('/user/name/<username>', methods=['GET'])
 @auth.login_required(role='user')
 @handle_server_exception

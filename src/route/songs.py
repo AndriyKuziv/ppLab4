@@ -38,7 +38,7 @@ def create_song():
 
 
 @app.route('/song/<songId>', methods=['GET'])
-@auth.login_required(role='admin')
+@auth.login_required(role=['user', 'admin'])
 @handle_server_exception
 def get_song_by_id(songId: int):
     song = Song.get_by_id(songId)
@@ -46,16 +46,6 @@ def get_song_by_id(songId: int):
         return handle_error_format('Song with such id does not exist.',
                                    'Field \'songId\' in path parameters.'), 404
     return Song.to_json(song)
-
-
-# @app.route('/song/name/<name>', methods=['GET'])
-# @handle_server_exception
-# def get_song_by_name(name: str):
-#     song = Song.get_by_name(name)
-#     if not song:
-#         return handle_error_format('There are no songs with such name.',
-#                                    'Field \'name\' in path parameters.'), 404
-#     return Song.to_json(song)
 
 
 @app.route('/song/<songId>', methods=['PUT'])

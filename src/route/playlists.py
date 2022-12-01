@@ -1,5 +1,5 @@
 from src.app import app, auth
-from src.model.user import User
+from src.model.user import User, Role
 from src.model.song import Song
 from src.model.playlist import State, Playlist
 from src.model.playlist_song import PlaylistSong
@@ -8,10 +8,12 @@ from src.error_handler.exception_wrapper import handle_error_format
 from src.error_handler.exception_wrapper import handle_server_exception
 
 
-@app.route('/playlist/<userId>', methods=['POST'])
+@app.route('/playlist/create', methods=['POST'])
 @auth.login_required(role=['user', 'admin'])
 @handle_server_exception
-def create_playlist(userId: int):
+def create_playlist():
+    username = auth.username()
+
     parser = reqparse.RequestParser()
 
     parser.add_argument('name', help='name cannot be blank', required=True)
@@ -21,7 +23,7 @@ def create_playlist(userId: int):
     name = data['name']
     state = State(data['state'])
 
-    user = User.get_by_id(userId)
+    user = User.get_by_username(username)
 
     if not user:
         return handle_error_format('User with such id does not exist.',
@@ -29,7 +31,7 @@ def create_playlist(userId: int):
 
     playlist = Playlist(
         name=name,
-        userId=userId,
+        userName=username,
         state=state
     )
 
@@ -57,6 +59,12 @@ def get_playlist_by_id(playlistId: int):
     if not playlist:
         return handle_error_format('Playlist with such id does not exist.',
                                    'Field \'playlistId\' in path parameters.'), 404
+    username1 = auth.username()
+    usr = User.get_by_username(username1)
+    admin = Role.get_by_name("admin")
+    if playlist.state == State.PRIVATE and playlist.userName != username1 and admin not in usr.roles:
+        return handle_error_format('You do not have permission for this playlist',
+                                   'Field \'userId\' in path parameters.'), 401
 
     return Playlist.to_json(playlist)
 
@@ -80,6 +88,13 @@ def update_playlist_by_id(playlistId: int):
         return handle_error_format('Playlist with such id does not exist.',
                                    'Field \'playlistId\' in path parameters.'), 404
 
+    username1 = auth.username()
+    usr = User.get_by_username(username1)
+    admin = Role.get_by_name("admin")
+    if playlist.state == State.PRIVATE and playlist.userName != username1 and admin not in usr.roles:
+        return handle_error_format('You do not have permission for this playlist',
+                                   'Field \'userId\' in path parameters.'), 401
+
     if Playlist.get_by_name(name) and not (name == playlist.name):
         return handle_error_format('Playlist with such name already exists.',
                                    'Field \'name\' in the request body.'), 400
@@ -100,6 +115,13 @@ def get_playlist_songs_by_id(playlistId: int):
         return handle_error_format('Playlist with such id does not exist.',
                                    'Field \'playlistId\' in path parameters.'), 404
 
+    username1 = auth.username()
+    usr = User.get_by_username(username1)
+    admin = Role.get_by_name("admin")
+    if playlist.state == State.PRIVATE and playlist.userName != username1 and admin not in usr.roles:
+        return handle_error_format('You do not have permission for this playlist',
+                                   'Field \'userId\' in path parameters.'), 401
+
     return PlaylistSong.return_all_by_playlist_id(playlistId)
 
 
@@ -112,6 +134,13 @@ def add_song_to_playlist(playlistId: int):
     if not playlist:
         return handle_error_format('Playlist with such id does not exist.',
                                    'Field \'playlistId\' in path parameters.'), 404
+
+    username1 = auth.username()
+    usr = User.get_by_username(username1)
+    admin = Role.get_by_name("admin")
+    if playlist.state == State.PRIVATE and playlist.userName != username1 and admin not in usr.roles:
+        return handle_error_format('You do not have permission for this playlist',
+                                   'Field \'userId\' in path parameters.'), 401
 
     parser = reqparse.RequestParser()
 
@@ -146,6 +175,13 @@ def remove_song_from_playlist(playlistId: int):
     if not playlist:
         return handle_error_format('Playlist with such id does not exist.',
                                    'Field \'playlistId\' in path parameters.'), 404
+
+    username1 = auth.username()
+    usr = User.get_by_username(username1)
+    admin = Role.get_by_name("admin")
+    if playlist.state == State.PRIVATE and playlist.userName != username1 and admin not in usr.roles:
+        return handle_error_format('You do not have permission for this playlist',
+                                   'Field \'userId\' in path parameters.'), 401
 
     parser = reqparse.RequestParser()
 
