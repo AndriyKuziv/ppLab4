@@ -62,8 +62,8 @@ class PlaylistSong(db.Model):
         playlistsong = PlaylistSong.get_by_id(playlistsong_id)
 
         if not playlistsong:
-            return handle_error_format('Song with such id does not exist.',
-                                       'Field \'SongId\' in path parameters.'), 404
+            return handle_error_format('Record with such id does not exist.',
+                                       'Field \'recordId\' in path parameters.'), 404
 
         playlistsong_json = PlaylistSong.to_json(playlistsong)
 

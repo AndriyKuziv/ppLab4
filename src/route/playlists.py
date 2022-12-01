@@ -195,8 +195,3 @@ def remove_song_from_playlist(playlistId: int):
                                    'Field \'songId\' in path parameters.'), 404
 
     return PlaylistSong.delete_by_song_id_and_playlist_id(song_id, playlistId)
-
-
-
-
-

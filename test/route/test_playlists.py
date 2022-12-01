@@ -20,7 +20,7 @@ class TestUsers(TestCase):
         self.get_playlist_json = {
             'id': None,
             'name': 'PlaylistName',
-            'user_id': None,
+            'user_name': None,
             'state': 'Public'
         }
 
@@ -29,16 +29,16 @@ class TestUsers(TestCase):
         }
 
     @mock.patch('src.model.playlist.Playlist.save_to_db')
-    @mock.patch('src.model.user.User.get_by_id')
+    @mock.patch('src.model.user.User.get_by_username')
     @mock.patch('flask_restful.reqparse.RequestParser.parse_args')
-    def test_create_playlist(self, mock_request_parser, mock_get_by_id,
+    def test_create_playlist(self, mock_request_parser, mock_get_by_username,
                              mock_save_to_db):
 
         mock_request_parser.return_value = self.playlist_json_create
-        mock_get_by_id.return_value = User()
+        mock_get_by_username.return_value = User()
         mock_save_to_db.return_value = True
         undecorated_get_playlist = undecorated(create_playlist)
-        result = undecorated_get_playlist(1)
+        result = undecorated_get_playlist()
 
         self.assertEqual(({'message': 'Playlist was successfully created'}, 200), result)
 

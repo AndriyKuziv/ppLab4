@@ -15,11 +15,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 auth = HTTPBasicAuth()
 
-# import src.model.user
-# import src.model.playlist
-# import src.route.users
-# import src.route.playlists
-
 
 @app.before_request
 def create_tables():
