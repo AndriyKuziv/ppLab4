@@ -1,6 +1,8 @@
 from src.app import app, auth
 from src.model.user import User
+from src.model.song import Song
 from src.model.playlist import State, Playlist
+from src.model.playlist_song import PlaylistSong
 from flask_restful import reqparse
 from src.error_handler.exception_wrapper import handle_error_format
 from src.error_handler.exception_wrapper import handle_server_exception
@@ -87,3 +89,78 @@ def update_playlist_by_id(playlistId: int):
     playlist.save_to_db()
 
     return Playlist.to_json(playlist)
+
+
+@app.route('/playlist/<playlistId>/songs', methods=['GET'])
+@handle_server_exception
+def get_playlist_songs_by_id(playlistId: int):
+    playlist = Playlist.get_by_id(playlistId)
+
+    if not playlist:
+        return handle_error_format('Playlist with such id does not exist.',
+                                   'Field \'playlistId\' in path parameters.'), 404
+
+    return PlaylistSong.return_all_by_playlist_id(playlistId)
+
+
+@app.route('/playlist/<playlistId>/addSong', methods=['POST'])
+@handle_server_exception
+@auth.login_required(role=['user', 'admin'])
+def add_song_to_playlist(playlistId: int):
+    playlist = Playlist.get_by_id(playlistId)
+
+    if not playlist:
+        return handle_error_format('Playlist with such id does not exist.',
+                                   'Field \'playlistId\' in path parameters.'), 404
+
+    parser = reqparse.RequestParser()
+
+    parser.add_argument('song_id', help='song_id cannot be blank', required=True)
+
+    data = parser.parse_args()
+    song_id = data['song_id']
+
+    if not Song.get_by_id(song_id):
+        return handle_error_format('Song with such id does not exist.',
+                                   'Field \'songId\' in path parameters.'), 404
+
+    playlist_song = PlaylistSong(
+        playlist_id=playlistId,
+        song_id=song_id
+    )
+
+    try:
+        playlist_song.save_to_db()
+
+        return {'message': 'Song was successfully added to playlist'}, 200
+    except:
+        return {'message': 'Something went wrong'}, 500
+
+
+@app.route('/playlist/<playlistId>/remSong', methods=['DELETE'])
+@handle_server_exception
+@auth.login_required(role=['user', 'admin'])
+def remove_song_from_playlist(playlistId: int):
+    playlist = Playlist.get_by_id(playlistId)
+
+    if not playlist:
+        return handle_error_format('Playlist with such id does not exist.',
+                                   'Field \'playlistId\' in path parameters.'), 404
+
+    parser = reqparse.RequestParser()
+
+    parser.add_argument('song_id', help='name cannot be blank', required=True)
+
+    data = parser.parse_args()
+    song_id = data['song_id']
+
+    if not Song.get_by_id(song_id):
+        return handle_error_format('Song with such id does not exist.',
+                                   'Field \'songId\' in path parameters.'), 404
+
+    return PlaylistSong.delete_by_song_id_and_playlist_id(song_id, playlistId)
+
+
+
+
+
